@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="keywords" content="聚商，充值，聚商平台">
+    <meta name="description" content="聚商商务平台————游戏代理分销，诚信公正的商务平台登录页">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+    <script src="./static/jquery.min.js"></script>
+    <script src="./static/layui/layui.js"></script>
+    <script src="./static/template.js"></script>
+</head>
+
+<body>
+    <div id="app"></div>
+    <!--销售模板-->
+    <script type="text/html" id="sales_M">
+        <div id="sales" class="layui-form">
+            <div class="containerForm">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">玩家ID：</label>
+                    <div class="layui-input-block input-short">
+                        <input type="text" name="playerID" required lay-verify="required" placeholder="请输入玩家ID" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">转出游戏币</label>
+                    <div class="layui-input-block input-short">
+                        <input type="text" name="moneyNum" required lay-verify="required" placeholder="请输入转出游戏币" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+            </div>
+            <p class="msg">一经转出无法收回！请确认上述信息是否正确</p>
+            <div class="layui-form-item">
+                <div class="input-block">
+                    <button class="layui-btn layui-btn-warm" lay-submit lay-filter="deal">确定</button>
+                    <button type="reset" class="layui-btn layui-btn-primary resetBtn">取消</button>
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <!--出售/购买订单模板-->
+    <script type="text/html" id="buy_M">
+        <div id="buy" class="layui-form">
+            <table class="layui-table" lay-even lay-skin="nob">
+                <colgroup>
+                    <col width="130">
+                    <col width="220">
+                </colgroup>
+                <tbody>
+                    <tr>
+                        <td>游戏：</td>
+                        <td>人生就像是一场修行</td>
+                    </tr>
+                    <tr>
+                        <td>ID：</td>
+                        <td>人生就像是一场修行</td>
+                    </tr>
+                    <tr>
+                        <td>{{temp}}数量：</td>
+                        <td>人生就像是一场修行</td>
+                    </tr>
+                    <tr>
+                        <td>{{temp}}价格：</td>
+                        <td>人生就像是一场修行</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="input-block">
+                <button class="layui-btn layui-btn-warm" lay-submit lay-filter="sure_deal" data-i="{{temp}}">确认订单</button>
+                <button type="reset" class="layui-btn layui-btn-primary resetBtn">取消</button>
+            </div>
+        </div>
+    </script>
+
+    <!--支付密码模板-->
+    <script type="text/html" id="pay_Pwd">
+        <div id="pwd" class="layui-form">
+            <div class="containerForm">
+                <p class="type">{{title}}</p>
+                <p class="price">￥:&nbsp;<span>{{money}}</span></p>
+                <p class="game-money">折合游戏币<span>******</span></p>
+                <div class="layui-form-item">
+                    <span></span><span></span><span></span><span></span><span></span><span></span>
+                    <input type="password" name="pay_pwd" id="payPwdText" required lay-verify="required" maxlength="6" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <!--官方充值模板-->
+    <script type="text/html" id="pub_Pay">
+        <div id="gamePay" class="layui-form">
+            <table class="layui-table" lay-even lay-skin="nob">
+                <colgroup>
+                    <col width="130">
+                    <col width="220">
+                </colgroup>
+                <tbody>
+                    <tr>
+                        <td>游戏：</td>
+                        <td>人生就像是一场修行</td>
+                    </tr>
+                    <tr>
+                        <td>ID：</td>
+                        <td>人生就像是一场修行</td>
+                    </tr>
+                    <tr>
+                        <td>交易比例：</td>
+                        <td>出:100=100 收:100=102</td>
+                    </tr>
+                    <tr>
+                        <td>充值数量：</td>
+                        <td>
+                            <input type="text" class="num_box" value="0" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>充值价格：</td>
+                        <td>人生就像是一场修行</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="input-block">
+                <button class="layui-btn layui-btn-warm" lay-submit lay-filter="sure_deal" data-i="{{temp}}">确认订单</button>
+                <button type="reset" class="layui-btn layui-btn-primary resetBtn">取消</button>
+            </div>
+        </div>
+    </script>
+
+    <!-- built files will be auto injected -->
+
+    <script>
+        $(function() {
+            var index = (function(index) {
+                //关闭当前窗口
+                index.closeWindow = function(sales) {
+                    function closeM() {
+                        layer.close(sales);
+                    }
+
+                    $(".resetBtn").unbind("click", closeM);
+                    $(".resetBtn").on("click", closeM);
+                }
+
+                //事件绑定
+                index.eventRegist = function() {
+                    $("#searchTxt").on("focus", function() {
+                        var _this = this;
+                        var val = $(_this).val();
+                        if (!val) {
+                            var txtW = $("#searchTxt").width();
+                            var btnW = $("#searchBtn").width();
+                            var offWidth = $("#searchTxt").offset().left + txtW - $("#searchBtn").offset().left - btnW;
+                            $("#searchBtn").css("transform", "translateX(" + (offWidth) + "px)");
+                        }
+                    });
+
+                    $("#searchTxt").on("blur", function() {
+                        var _this = this;
+                        var val = $(_this).val();
+                        if (!val) {
+                            $("#searchBtn").css("transform", "translateX(0px)");
+                        }
+                    });
+
+                    //右侧顶部消息按钮
+                    $("#msgBtn").click(function() {
+                        var load = layer.load(0, {
+                            shade: [0.4, "#000"], //0.1透明度的白色背景
+                            scrollbar: false
+                        });
+                        setTimeout(function() {
+                            layer.close(load)
+                        }, 2000);
+                    });
+
+                    //出售按钮
+                    $("#sell").on("click", function() {
+                        var html = template("sales_M", []);
+                        var sales = layer.open({
+                            type: 1,
+                            content: html,
+                            skin: "dl",
+                            title: ["销售"],
+                            closeBtn: 0,
+                            area: ["25rem"]
+                        });
+                        index.closeWindow(sales);
+                    });
+
+                    //购买按钮
+                    $(".deal").on("click", function(e) {
+                        var node = $(this).attr("data-i");
+                        var html = template("buy_M", {
+                            temp: node == "buy" ? "卖出" : "购入"
+                        });
+                        var sales = layer.open({
+                            type: 1,
+                            title: false,
+                            content: html,
+                            skin: "dl",
+                            closeBtn: 0,
+                            area: ["25rem"]
+                        });
+                        index.closeWindow(sales);
+                    });
+
+                    //充值按钮
+                    $("#payBtn").on("click", function() {
+                        var html = template("pub_Pay", []);
+                        var sales = layer.open({
+                            type: 1,
+                            title: false,
+                            content: html,
+                            skin: "dl",
+                            closeBtn: 0,
+                            area: ["25rem"]
+                        });
+                        index.closeWindow(sales);
+                    });
+                };
+
+                //支付密码框
+                index.payOpen = function(title, money) {
+                    var html = template("pay_Pwd", {
+                        title: title,
+                        money: money
+                    });
+                    layer.open({
+                        type: 1,
+                        content: html,
+                        closeBtn: 1,
+                        title: ["请输入支付密码", "padding:.4rem 40px;text-align:center;font-size:1.2rem"],
+                        area: ["25rem"],
+                        skin: "pay"
+                    });
+                };
+
+                //支付请求
+                index.payRequst = function(val) {
+                    console.log(val);
+                    layer.load(0, {
+                        shade: [0.4, "#000"], //0.1透明度的白色背景
+                        scrollbar: false
+                    });
+                    setTimeout(function() {
+                        layer.closeAll();
+                        layer.alert("成功！", {
+                            icon: 1,
+                            title: false,
+                            btnAlign: 'c',
+                            closeBtn: 0
+                        });
+                    }, 2000);
+                };
+
+                //支付密码输入
+                index.payInput = function() {
+                    $("#payPwdText").on("input propertychange", function() {
+                        console.log("input");
+                        var val = $(this).val();
+                        var leng = val.length;
+                        var span = $("#pwd .layui-form-item>span");
+                        var text = $("#pwd .layui-form-item>span[input='true']").length;
+                        if (text <= leng) {
+                            for (var i = 0; i < leng; i++) {
+                                span.eq(i).html("*").attr("input", true);
+                            }
+                            i == 6 && index.payRequst(val);
+                        } else {
+                            for (var i = leng; i < 6; i++) {
+                                span.eq(i).html("").attr("input", false);
+                            }
+                            console.log(val);
+                        }
+
+                    });
+                }
+
+                index.init = function() {
+                    layui.define(["layer", "form"], function(exports) {
+                        layer = layui.layer;
+                        var form = layui.form();
+
+                        //输入验证
+                        form.verify({
+                            checkPwdL: function(value) {
+                                if (value.length != 6) {
+                                    return "请输入6位数交易密码";
+                                }
+                            },
+                            checkPwd: function(value) {
+                                var reg = /^(\w){6,14}$/;
+                                if (!reg.test(value)) {
+                                    return "登录密码由6-14位数字，字母组成";
+                                }
+                            }
+                        });
+
+                        //提交事件
+                        form.on("submit(deal)", function(data) {
+                            console.log(data, 1);
+                        });
+                        form.on("submit(sure_deal)", function(data) {
+                            var node = data.elem.dataset.i;
+                            layer.close(layer.index);
+                            layer.open({
+                                content: 'hello',
+                                title: false,
+                                btnAlign: 'c',
+                                yes: function(i, layero) {
+                                    layer.close(i);
+                                    index.payOpen(node, 7123);
+                                    index.payInput();
+                                }
+                            });
+                        });
+
+                        index.eventRegist();
+                        exports("index", {}); //注意，这里是模块输出的核心，模块名必须和use时的模块名一致
+                    });
+                };
+                return index;
+            }(index || {}));
+            index.init();
+        })
+    </script>
+</body>
+
+</html>
